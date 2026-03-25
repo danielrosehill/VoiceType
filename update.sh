@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Voice Keyboard Update Script
+# VoiceType Update Script
 # Rebuilds and updates the installed Debian package
 
 set -e  # Exit on error
@@ -10,7 +10,7 @@ APP_DIR="$SCRIPT_DIR/app"
 DEB_DIR="$APP_DIR/target/debian"
 
 echo "=========================================="
-echo "Voice Keyboard Update Script"
+echo "VoiceType Update Script"
 echo "=========================================="
 echo ""
 
@@ -21,8 +21,8 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 # Check if the package is installed
-if ! dpkg -l | grep -q "voice-keyboard"; then
-  echo "Error: voice-keyboard is not currently installed."
+if ! dpkg -l | grep -q "voicetype"; then
+  echo "Error: voicetype is not currently installed."
   echo "Run ./install.sh first to install the package."
   exit 1
 fi
@@ -77,7 +77,7 @@ echo ""
 echo "Found package: $(basename "$DEB_FILE")"
 echo ""
 echo "Removing old version..."
-sudo dpkg -r voice-keyboard
+sudo dpkg -r voicetype
 
 echo ""
 echo "Installing updated package..."
@@ -94,5 +94,5 @@ echo "Update complete!"
 echo "=========================================="
 echo ""
 echo "Changes have been applied."
-echo "If voice-keyboard-gui is running, restart it to use the new version."
+echo "If voicetype-gui is running, restart it to use the new version."
 echo ""

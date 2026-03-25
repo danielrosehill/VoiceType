@@ -1,14 +1,12 @@
-# Voice Keyboard
+# VoiceType
 
-Voice keyboard is a demo application showcasing Deepgram's new turn-taking speech-to-text API: **Flux**.
+A real-time Linux voice keyboard that converts speech to text and types it into any application, powered by Deepgram's **Flux** turn-taking STT API.
 
-A voice-controlled Linux virtual keyboard that converts speech to text and types it into any application.
-
-As a result of directly targeting Linux as a driver, this works with all Linux applications.
+By directly targeting Linux's uinput device, VoiceType works with all Linux applications.
 
 ## GUI Available!
 
-A graphical user interface is now available for easy control of voice dictation! See [GUI_README.md](GUI_README.md) for details.
+A graphical user interface is available for easy control of voice dictation. See [GUI_README.md](app/GUI_README.md) for details.
 
 Features:
 - Store your Deepgram API key persistently
@@ -19,14 +17,14 @@ Features:
 Quick start:
 ```bash
 ./install.sh
-voice-keyboard-gui
+voicetype-gui
 ```
 
 Or for development:
 ```bash
 cd app
 cargo build --release
-./target/release/voice-keyboard-gui
+./target/release/voicetype-gui
 ```
 
 ## Features
@@ -49,7 +47,7 @@ The application solves a common Linux privilege problem:
 
 ```bash
 git clone <repository-url>
-cd voice-keyboard-linux
+cd voicetype-linux
 ./install.sh
 ```
 
@@ -72,7 +70,7 @@ sudo dnf install alsa-lib-devel
 
 ```bash
 git clone <repository-url>
-cd voice-keyboard-linux/app
+cd voicetype-linux/app
 cargo build
 ```
 
@@ -104,7 +102,7 @@ Use the provided runner script:
 ```bash
 # Build and run with proper privilege handling
 cargo build
-sudo -E ./target/debug/voice-keyboard --test-stt
+sudo -E ./target/debug/voicetype --test-stt
 ```
 
 **Important**: Always use `sudo -E` to preserve environment variables needed for audio access.
@@ -116,7 +114,7 @@ This application uses **Deepgram Flux**, the company's new turn‑taking STT API
 ## Command Line Options
 
 ```bash
-voice-keyboard [OPTIONS]
+voicetype [OPTIONS]
 
 OPTIONS:
     --test-audio        Test audio input and show levels
@@ -181,7 +179,7 @@ If you get "Host is down" or "I/O error" when testing audio:
 
 1. **Use `sudo -E`**: Always preserve environment variables
 2. **Check PipeWire**: Ensure PipeWire is running: `systemctl --user status pipewire`
-3. **Test without sudo**: Try `./target/debug/voice-keyboard --test-audio` (will fail on keyboard creation but audio should work)
+3. **Test without sudo**: Try `./target/debug/voicetype --test-audio` (will fail on keyboard creation but audio should work)
 
 ### Permission Issues
 

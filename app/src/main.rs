@@ -109,14 +109,14 @@ impl OriginalUser {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
-    info!("Starting Voice Keyboard v{}", env!("CARGO_PKG_VERSION"));
+    info!("Starting VoiceType v{}", env!("CARGO_PKG_VERSION"));
 
     // Capture original user info before we do anything
     let original_user = OriginalUser::capture();
 
-    let matches = Command::new("voice-keyboard")
+    let matches = Command::new("voicetype")
         .version(env!("CARGO_PKG_VERSION"))
-        .about("Voice-controlled keyboard input")
+        .about("VoiceType — real-time voice keyboard input")
         .arg(
             Arg::new("test-audio")
                 .long("test-audio")
@@ -161,7 +161,7 @@ async fn main() -> Result<()> {
         )
         .get_matches();
 
-    let device_name = "Voice Keyboard";
+    let device_name = "VoiceType";
 
     // Step 1: Create virtual keyboard while we have root privileges
     debug!("Creating virtual keyboard device (requires root privileges)...");
@@ -323,6 +323,20 @@ async fn run_stt<F>(stt_url: &str, on_transcription: F) -> Result<()>
 where
     F: Fn(stt_client::TranscriptionResult) + Send + 'static,
 {
+    // Orphan detection: if our parent process dies (e.g. GUI kills pkexec),
+    // we get reparented to PID 1. Check periodically and exit cleanly.
+    let original_ppid = unsafe { libc::getppid() };
+    thread::spawn(move || {
+        loop {
+            thread::sleep(Duration::from_secs(1));
+            let current_ppid = unsafe { libc::getppid() };
+            if current_ppid != original_ppid {
+                info!("Parent process died (was {}, now {}), exiting", original_ppid, current_ppid);
+                std::process::exit(0);
+            }
+        }
+    });
+
     let mut audio_input = AudioInput::new()?;
     debug!(
         "Using audio device with {} channels at {} Hz",

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Voice Keyboard — Build & Install Script
+# VoiceType — Build & Install Script
 # Usage:
 #   ./build.sh              Build and install the .deb package
 #   ./build.sh --update     Remove old version first, then rebuild and install
@@ -56,7 +56,7 @@ fi
 
 # Build
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
-echo "Building voice-keyboard v${VERSION} (release)..."
+echo "Building voicetype v${VERSION} (release)..."
 cargo build --release
 
 echo "Creating Debian package..."
@@ -83,10 +83,10 @@ fi
 
 # Remove old version on update
 if [[ "$ACTION" == "update" ]]; then
-    if dpkg -l voice-keyboard &>/dev/null 2>&1; then
+    if dpkg -l voicetype &>/dev/null 2>&1; then
         echo ""
         echo "Removing old version..."
-        sudo dpkg -r voice-keyboard
+        sudo dpkg -r voicetype
     fi
 fi
 
@@ -96,10 +96,10 @@ sudo dpkg -i "$DEB_FILE"
 sudo apt-get install -f -y 2>/dev/null || true
 
 echo ""
-echo "Installed voice-keyboard v${VERSION}"
+echo "Installed voicetype v${VERSION}"
 echo ""
 echo "Commands:"
-echo "  voice-keyboard       CLI (requires sudo)"
-echo "  voice-keyboard-gui   GUI application"
+echo "  voicetype       CLI (requires sudo)"
+echo "  voicetype-gui   GUI application"
 echo ""
-echo "Or find 'Voice Keyboard' in your application menu."
+echo "Or find 'VoiceType' in your application menu."

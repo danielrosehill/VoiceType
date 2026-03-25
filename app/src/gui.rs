@@ -13,6 +13,7 @@ use rodio::{source::SineWave, OutputStream, Sink, Source};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{BufRead, BufReader};
+use std::os::unix::io::AsRawFd;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
@@ -40,7 +41,7 @@ impl Default for Config {
 
 impl Config {
     fn config_path() -> Result<PathBuf> {
-        let project_dirs = ProjectDirs::from("com", "deepgram", "voice-keyboard")
+        let project_dirs = ProjectDirs::from("com", "voicetype", "voicetype")
             .context("Failed to get project directories")?;
         let config_dir = project_dirs.config_dir();
         fs::create_dir_all(config_dir)?;
@@ -398,7 +399,7 @@ impl VoiceKeyboardGui {
             .unwrap()
             .parent()
             .unwrap()
-            .join("voice-keyboard");
+            .join("voicetype");
 
         let mut cmd = Command::new("pkexec");
         cmd.arg("env")
@@ -427,6 +428,14 @@ impl VoiceKeyboardGui {
         match cmd.spawn() {
             Ok(mut child) => {
                 let stdout = child.stdout.take();
+                // Set stdout pipe to non-blocking so read_line won't freeze the GUI
+                if let Some(ref stdout) = stdout {
+                    let fd = stdout.as_raw_fd();
+                    unsafe {
+                        let flags = libc::fcntl(fd, libc::F_GETFL);
+                        libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK);
+                    }
+                }
                 *self.voice_keyboard_process.lock().unwrap() = Some(child);
                 *self.child_stdout.lock().unwrap() =
                     stdout.map(BufReader::new);
@@ -442,21 +451,16 @@ impl VoiceKeyboardGui {
     fn stop_dictation(&mut self) {
         self.play_stop_beep();
 
-        // Drain stdout reader
+        // Drop stdout reader first — this closes the read end of the pipe,
+        // causing voice-keyboard's next stdout write to get EPIPE and exit
         *self.child_stdout.lock().unwrap() = None;
 
         if let Some(mut child) = self.voice_keyboard_process.lock().unwrap().take() {
-            let _ = child.kill();
-            let start = std::time::Instant::now();
-            while start.elapsed() < Duration::from_secs(2) {
-                match child.try_wait() {
-                    Ok(Some(_)) => break,
-                    Ok(None) => std::thread::sleep(Duration::from_millis(50)),
-                    Err(_) => break,
-                }
-            }
+            // Kill the pkexec wrapper
             let _ = child.kill();
             let _ = child.wait();
+            // The voice-keyboard root child will self-terminate via orphan detection
+            // (parent PID becomes 1 when pkexec dies)
         }
 
         // Finalize current transcript
@@ -504,6 +508,7 @@ impl VoiceKeyboardGui {
                             }
                         }
                     }
+                    Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => break, // No data available yet
                     Err(_) => break,
                 }
             }
@@ -689,7 +694,7 @@ impl VoiceKeyboardGui {
             .size(14)
             .color(status_color);
 
-        let title = text("Voice Keyboard")
+        let title = text("VoiceType")
             .size(22)
             .font(Font::DEFAULT)
             .color(TEXT_PRIMARY);
@@ -928,7 +933,7 @@ impl VoiceKeyboardGui {
 // ── Entry point ─────────────────────────────────────────────────────────
 
 fn main() -> iced::Result {
-    iced::application("Voice Keyboard", VoiceKeyboardGui::update, VoiceKeyboardGui::view)
+    iced::application("VoiceType", VoiceKeyboardGui::update, VoiceKeyboardGui::view)
         .subscription(VoiceKeyboardGui::subscription)
         .theme(|_| Theme::Light)
         .window_size((480.0, 560.0))

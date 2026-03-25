@@ -1,19 +1,19 @@
 [package]
-name = "voice-keyboard"
-version = "0.2.0"
+name = "voicetype"
+version = "0.3.0"
 edition = "2021"
-description = "Linux virtual keyboard driver for voice dictation with Deepgram Flux STT API"
+description = "VoiceType — a real-time Linux voice keyboard powered by Deepgram Flux STT"
 license = "ISC"
-repository = "https://github.com/danielrosehill/deepgram-voice-keyboard"
-homepage = "https://github.com/danielrosehill/deepgram-voice-keyboard"
+repository = "https://github.com/danielrosehill/VoiceType"
+homepage = "https://github.com/danielrosehill/VoiceType"
 readme = "README.md"
 
 [[bin]]
-name = "voice-keyboard"
+name = "voicetype"
 path = "src/main.rs"
 
 [[bin]]
-name = "voice-keyboard-gui"
+name = "voicetype-gui"
 path = "src/gui.rs"
 
 [dependencies]
@@ -46,10 +46,10 @@ strip = true
 
 [package.metadata.deb]
 maintainer = "Daniel Rosehill <public@danielrosehill.com>"
-copyright = "2025, Deepgram & Daniel Rosehill"
+copyright = "2025-2026, Daniel Rosehill"
 license-file = ["LICENSE.txt", "4"]
 extended-description = """\
-Voice Keyboard is a Linux virtual keyboard driver that types what you say \
+VoiceType is a real-time Linux voice keyboard that types what you say \
 using Deepgram's Flux STT API. The GUI provides an easy-to-use interface \
 for controlling voice dictation with persistent API key storage and global \
 hotkey support (default: F13). Features audible beep feedback and works \
@@ -58,10 +58,10 @@ depends = "libasound2, pkexec"
 section = "utils"
 priority = "optional"
 assets = [
-    ["target/release/voice-keyboard", "usr/bin/", "755"],
-    ["target/release/voice-keyboard-gui", "usr/bin/", "755"],
-    ["README.md", "usr/share/doc/voice-keyboard/", "644"],
-    ["GUI_README.md", "usr/share/doc/voice-keyboard/", "644"],
-    ["LICENSE.txt", "usr/share/doc/voice-keyboard/", "644"],
-    ["voice-keyboard-gui.desktop", "usr/share/applications/", "644"],
+    ["target/release/voicetype", "usr/bin/", "755"],
+    ["target/release/voicetype-gui", "usr/bin/", "755"],
+    ["README.md", "usr/share/doc/voicetype/", "644"],
+    ["GUI_README.md", "usr/share/doc/voicetype/", "644"],
+    ["LICENSE.txt", "usr/share/doc/voicetype/", "644"],
+    ["voicetype-gui.desktop", "usr/share/applications/", "644"],
 ]

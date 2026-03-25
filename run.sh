@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Voice Keyboard Runner Script (Development Mode)
-# This script runs the voice-keyboard from source with proper privilege handling
+# VoiceType Runner Script (Development Mode)
+# This script runs the voicetype from source with proper privilege handling
 #
 # Usage examples:
 #   ./run.sh --test-audio              # Test audio input
@@ -19,7 +19,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 # Build the project first
-echo "Building voice-keyboard..."
+echo "Building voicetype..."
 cd "$APP_DIR"
 cargo build
 
@@ -29,9 +29,9 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run with sudo -E to preserve environment variables
-echo "Starting voice-keyboard with privilege dropping..."
+echo "Starting voicetype with privilege dropping..."
 echo "Note: This will create a virtual keyboard as root, then drop privileges for audio access."
 echo ""
 
-sudo -E "$APP_DIR/target/debug/voice-keyboard" "$@"
+sudo -E "$APP_DIR/target/debug/voicetype" "$@"
 

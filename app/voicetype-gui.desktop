@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=Voice Keyboard GUI
-GenericName=Voice Dictation Control
-Comment=Control voice dictation with Deepgram Flux STT API
-Exec=voice-keyboard-gui
+Name=VoiceType
+GenericName=Voice Dictation
+Comment=Real-time voice keyboard powered by Deepgram Flux STT
+Exec=voicetype-gui
 Icon=audio-input-microphone
 Terminal=false
 Type=Application

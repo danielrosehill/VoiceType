@@ -1,6 +1,6 @@
-# Voice Keyboard GUI
+# VoiceType GUI
 
-A graphical user interface for the Voice Keyboard application that makes it easy to control voice dictation with Deepgram.
+A graphical user interface for VoiceType that makes it easy to control voice dictation with Deepgram.
 
 ## Features
 

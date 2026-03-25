@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Voice Keyboard Installation Script
+# VoiceType Installation Script
 # Builds the Debian package and installs it on the system
 
 set -e  # Exit on error
@@ -10,7 +10,7 @@ APP_DIR="$SCRIPT_DIR/app"
 DEB_DIR="$APP_DIR/target/debian"
 
 echo "=========================================="
-echo "Voice Keyboard Installation Script"
+echo "VoiceType Installation Script"
 echo "=========================================="
 echo ""
 
@@ -78,11 +78,11 @@ echo "Installation complete!"
 echo "=========================================="
 echo ""
 echo "Available commands:"
-echo "  voice-keyboard        - CLI version (requires sudo)"
-echo "  voice-keyboard-gui    - GUI version"
+echo "  voicetype        - CLI version (requires sudo)"
+echo "  voicetype-gui    - GUI version"
 echo ""
 echo "To start the GUI:"
-echo "  voice-keyboard-gui"
+echo "  voicetype-gui"
 echo ""
-echo "Or find 'Voice Keyboard' in your application menu."
+echo "Or find 'VoiceType' in your application menu."
 echo ""

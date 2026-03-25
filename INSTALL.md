@@ -1,10 +1,10 @@
 # Installation Guide
 
-This document covers how to install and update Voice Keyboard on your system.
+This document covers how to install and update VoiceType on your system.
 
 ## Quick Install
 
-The easiest way to install Voice Keyboard is using the provided installation script:
+The easiest way to install VoiceType is using the provided installation script:
 
 ```bash
 ./install.sh
@@ -32,8 +32,8 @@ Before installation, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/danielrosehill/deepgram-voice-keyboard.git
-cd voice-keyboard-linux
+git clone https://github.com/danielrosehill/Real-Time-Text-Keyboard.git
+cd voicetype-linux
 ```
 
 ### 2. Run the Installer
@@ -54,14 +54,14 @@ After installation, you can:
 
 **Launch the GUI:**
 ```bash
-voice-keyboard-gui
+voicetype-gui
 ```
 
-Or find "Voice Keyboard" in your application menu.
+Or find "VoiceType" in your application menu.
 
 **Use the CLI version:**
 ```bash
-sudo -E voice-keyboard --test-stt
+sudo -E voicetype --test-stt
 ```
 
 ## Updating
@@ -97,22 +97,22 @@ This runs the application directly from the source directory.
 
 ## Uninstallation
 
-To remove Voice Keyboard from your system:
+To remove VoiceType from your system:
 
 ```bash
-sudo apt remove voice-keyboard
+sudo apt remove voicetype
 ```
 
 Or using dpkg:
 
 ```bash
-sudo dpkg -r voice-keyboard
+sudo dpkg -r voicetype
 ```
 
 ## Directory Structure
 
 ```
-voice-keyboard-linux/
+voicetype-linux/
 ├── app/                    # Application source code
 │   ├── src/               # Rust source files
 │   ├── Cargo.toml         # Package configuration
@@ -162,7 +162,7 @@ If you prefer to install manually:
 cd app
 cargo build --release
 cargo deb
-sudo dpkg -i target/debian/voice-keyboard_*.deb
+sudo dpkg -i target/debian/voicetype_*.deb
 sudo apt-get install -f
 ```
 
@@ -170,9 +170,9 @@ sudo apt-get install -f
 
 The installed package includes:
 
-- **Binaries**: `/usr/bin/voice-keyboard` and `/usr/bin/voice-keyboard-gui`
-- **Documentation**: `/usr/share/doc/voice-keyboard/`
-- **Desktop file**: `/usr/share/applications/voice-keyboard-gui.desktop`
+- **Binaries**: `/usr/bin/voicetype` and `/usr/bin/voicetype-gui`
+- **Documentation**: `/usr/share/doc/voicetype/`
+- **Desktop file**: `/usr/share/applications/voicetype-gui.desktop`
 
 The GUI stores configuration in:
-- `~/.config/voice-keyboard/config.json`
+- `~/.config/voicetype/config.json`
