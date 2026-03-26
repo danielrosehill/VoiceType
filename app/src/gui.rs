@@ -20,6 +20,78 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use reqwest::Client;
 
+// ── System Tray (KDE StatusNotifierItem via D-Bus) ─────────────────────
+
+#[derive(Debug, Clone)]
+enum TrayCommand {
+    ToggleDictation,
+    Quit,
+}
+
+struct VoiceTypeTray {
+    is_recording: bool,
+    tx: std::sync::mpsc::Sender<TrayCommand>,
+}
+
+impl ksni::Tray for VoiceTypeTray {
+    fn title(&self) -> String {
+        "VoiceType".into()
+    }
+
+    fn icon_name(&self) -> String {
+        if self.is_recording {
+            "audio-input-microphone".into()
+        } else {
+            "audio-input-microphone-muted".into()
+        }
+    }
+
+    fn tool_tip(&self) -> ksni::ToolTip {
+        ksni::ToolTip {
+            title: if self.is_recording {
+                "VoiceType — Recording".into()
+            } else {
+                "VoiceType — Idle".into()
+            },
+            description: String::new(),
+            icon_name: String::new(),
+            icon_pixmap: Vec::new(),
+        }
+    }
+
+    fn activate(&mut self, _x: i32, _y: i32) {
+        let _ = self.tx.send(TrayCommand::ToggleDictation);
+    }
+
+    fn menu(&self) -> Vec<ksni::MenuItem<Self>> {
+        use ksni::menu::*;
+        let label = if self.is_recording {
+            "Stop Dictation"
+        } else {
+            "Start Dictation"
+        };
+        vec![
+            StandardItem {
+                label: label.into(),
+                activate: Box::new(|tray: &mut Self| {
+                    let _ = tray.tx.send(TrayCommand::ToggleDictation);
+                }),
+                ..Default::default()
+            }
+            .into(),
+            MenuItem::Separator,
+            StandardItem {
+                label: "Quit".into(),
+                activate: Box::new(|tray: &mut Self| {
+                    let _ = tray.tx.send(TrayCommand::Quit);
+                }),
+                ..Default::default()
+            }
+            .into(),
+        ]
+    }
+}
+
 // ── Config ──────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -156,6 +228,9 @@ struct VoiceKeyboardGui {
     http_client: Client,
     // Hotkey receiver
     hotkey_rx: Arc<Mutex<Option<std::sync::mpsc::Receiver<()>>>>,
+    // System tray
+    tray_handle: Option<ksni::Handle<VoiceTypeTray>>,
+    tray_rx: Arc<Mutex<Option<std::sync::mpsc::Receiver<TrayCommand>>>>,
 }
 
 impl Drop for VoiceKeyboardGui {
@@ -336,6 +411,15 @@ impl VoiceKeyboardGui {
             }
         });
 
+        // System tray
+        let (tray_tx, tray_rx) = std::sync::mpsc::channel();
+        let tray_service = ksni::TrayService::new(VoiceTypeTray {
+            is_recording: false,
+            tx: tray_tx,
+        });
+        let tray_handle = tray_service.handle();
+        tray_service.spawn();
+
         let gui = Self {
             config,
             view: AppView::Main,
@@ -354,6 +438,8 @@ impl VoiceKeyboardGui {
             _hotkey_manager: hotkey_manager,
             http_client: Client::new(),
             hotkey_rx: Arc::new(Mutex::new(Some(hotkey_rx))),
+            tray_handle: Some(tray_handle),
+            tray_rx: Arc::new(Mutex::new(Some(tray_rx))),
         };
 
         // Start a subscription-like tick to poll hotkey and child stdout
@@ -562,6 +648,42 @@ impl VoiceKeyboardGui {
                         self.start_dictation();
                     }
                 }
+
+                // Check tray commands
+                let mut tray_toggle = false;
+                let mut tray_quit = false;
+                if let Ok(rx_lock) = self.tray_rx.lock() {
+                    if let Some(rx) = rx_lock.as_ref() {
+                        while let Ok(cmd) = rx.try_recv() {
+                            match cmd {
+                                TrayCommand::ToggleDictation => tray_toggle = true,
+                                TrayCommand::Quit => tray_quit = true,
+                            }
+                        }
+                    }
+                }
+                if tray_quit {
+                    if self.is_recording {
+                        self.stop_dictation();
+                    }
+                    std::process::exit(0);
+                }
+                if tray_toggle {
+                    if self.is_recording {
+                        self.stop_dictation();
+                    } else {
+                        self.start_dictation();
+                    }
+                }
+
+                // Sync tray icon state with recording state
+                if let Some(ref handle) = self.tray_handle {
+                    let recording = self.is_recording;
+                    handle.update(move |tray| {
+                        tray.is_recording = recording;
+                    });
+                }
+
                 // Read child output
                 if self.is_recording {
                     self.read_child_output();
