@@ -31,7 +31,7 @@ mkdir -p "$BUILD_DIR/usr/share/applications"
 cat > "$BUILD_DIR/usr/share/applications/voicetype.desktop" << 'DESKTOP'
 [Desktop Entry]
 Name=VoiceType
-Comment=Real-time voice keyboard
+Comment=Real-time voice keyboard (Deepgram API)
 Exec=/usr/bin/voicetype
 Icon=audio-input-microphone
 Terminal=false
