@@ -1,7 +1,7 @@
 [project]
 name = "voicetype"
-version = "0.5.1"
-description = "VoiceType — real-time Linux voice keyboard powered by Deepgram Flux STT"
+version = "0.6.0"
+description = "VoiceType — real-time Linux voice keyboard powered by Deepgram Nova-3 / Flux STT"
 license = "ISC"
 readme = "README.md"
 requires-python = ">=3.11"

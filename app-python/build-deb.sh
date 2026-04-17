@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 PKG_NAME="voicetype"
-VERSION="0.5.1"
+VERSION="0.6.0"
 ARCH="amd64"
 DEB_NAME="${PKG_NAME}_${VERSION}_${ARCH}.deb"
 BUILD_DIR="$(mktemp -d)"

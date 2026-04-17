@@ -37,7 +37,8 @@ class Config:
     hotkey_pause: str = ""
     project_id: str = ""
     api_key_id: str = ""  # Accessor ID for scoping cost queries to this key
-    model: str = "flux-general-en"
+    model: str = "nova-3"
+    keyterms: str = ""  # One keyterm per line; only used with Nova-3 models
     vad_enabled: bool = True
     push_to_talk: bool = False
     push_to_talk_key: str = "F13"

@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QPlainTextEdit,
+    QTextEdit,
     QPushButton,
     QSystemTrayIcon,
     QMenu,
@@ -39,9 +40,11 @@ from .sounds import play_start, play_stop, play_pause, play_resume
 from .stt_client import SttClient, TranscriptionResult
 from .virtual_keyboard import VirtualKeyboard
 
-# Deepgram streaming models compatible with the current v2/listen pipeline
+# Deepgram streaming models exposed in the settings UI
 AVAILABLE_MODELS: list[tuple[str, str]] = [
-    ("flux-general-en", "Flux (English) — conversational, low latency"),
+    ("nova-3", "Nova-3 (English) — best for dictation, supports keyterms"),
+    ("nova-3-multi", "Nova-3 (Multilingual) — supports keyterms"),
+    ("flux-general-en", "Flux (English) — conversational, ultra-low latency"),
     ("flux-general-multi", "Flux (Multilingual)"),
 ]
 
@@ -98,7 +101,8 @@ class VoiceTypeWindow(QMainWindow):
         super().__init__()
         _ensure_icons()
         self.setWindowTitle("VoiceType")
-        self.setFixedSize(480, 620)
+        self.setMinimumSize(480, 720)
+        self.resize(480, 760)
 
         self._config = Config.load()
         self._is_recording = False
@@ -243,6 +247,18 @@ class VoiceTypeWindow(QMainWindow):
         )
         self._model_combo.setCurrentIndex(idx)
         layout.addWidget(self._model_combo)
+
+        # Keyterms (Nova-3 only)
+        kt_label = QLabel("Keyterms — one per line, biases Nova-3 recognition")
+        kt_label.setStyleSheet(f"color: {TEXT_DIM}; font-size: 12px;")
+        layout.addWidget(kt_label)
+        self._keyterms_input = QTextEdit()
+        self._keyterms_input.setPlainText(self._config.keyterms)
+        self._keyterms_input.setPlaceholderText(
+            "ComfyUI\nKubernetes\nDaniel Rosehill\n(proper nouns, jargon, names)"
+        )
+        self._keyterms_input.setFixedHeight(80)
+        layout.addWidget(self._keyterms_input)
 
         layout.addSpacing(8)
 
@@ -496,10 +512,16 @@ class VoiceTypeWindow(QMainWindow):
         self._audio.start()
 
         # Start STT in background thread
+        keyterms = [
+            ln.strip()
+            for ln in (self._config.keyterms or "").splitlines()
+            if ln.strip()
+        ]
         stt = SttClient(
             sample_rate=16000,
             api_key=self._config.api_key,
-            model=self._config.model or "flux-general-en",
+            model=self._config.model or "nova-3",
+            keyterms=keyterms,
         )
 
         def _run_stt() -> None:
@@ -684,7 +706,8 @@ class VoiceTypeWindow(QMainWindow):
         self._config.api_key = self._api_key_input.text().strip()
         self._config.project_id = self._project_id_input.text().strip()
         self._config.api_key_id = self._api_key_id_input.text().strip()
-        self._config.model = self._model_combo.currentData() or "flux-general-en"
+        self._config.model = self._model_combo.currentData() or "nova-3"
+        self._config.keyterms = self._keyterms_input.toPlainText().strip()
         self._config.vad_enabled = self._vad_check.isChecked()
         self._config.sound_enabled = self._sound_check.isChecked()
         self._config.hotkey = self._hotkey_input.text().strip()
